@@ -12,11 +12,8 @@ uv run playwright install chromium
 ## Run
 
 ```bash
-# Full suite
+# Full suite (headless)
 uv run pytest
-
-# Headless (CI default)
-HEADLESS=true uv run pytest
 
 # Slow motion (debug)
 uv run pytest --headed --slowmo=1000
@@ -25,18 +22,43 @@ uv run pytest --headed --slowmo=1000
 uv run pytest src/tests/test_login.py -v
 ```
 
+## Allure Reporting
+
+Genera un reporte HTML interactivo con features, stories, severidad, pasos y screenshots automáticos en fallos.
+
+```bash
+# Generar resultados
+uv run pytest --alluredir=allure-results
+
+# Generar y abrir reporte HTML
+uv run allure generate allure-results --clean -o allure-report
+uv run allure open allure-report
+```
+
+## Playwright Tracing
+
+Genera una grabación completa del test (clicks, navigations, requests, console logs, DOM paso a paso) que se guarda automáticamente cuando un test falla. Se abre como timeline interactiva.
+
+```bash
+# Los traces se guardan solos en traces/ al fallar un test
+uv run pytest
+
+# Ver un trace
+npx playwright show-trace traces/<nombre-del-test>.zip
+```
+
 ## Test areas
 
-| File | Tests | Scope |
-|------|-------|-------|
-| `test_login.py` | 3 | Login valid/invalid/empty |
-| `test_inventory.py` | 9 | Items, sorting, cart badge |
-| `test_cart.py` | 9 | Add/remove, display, edge cases |
-| `test_checkout.py` | 11 | Form validation, summary, totals, full flow |
-| `test_item_details.py` | 6 | Detail view, add/remove, navigation |
-| `test_sidebar.py` | 7 | Menu open/close, links, logout, reset |
+Los tests siguen el patrón Page Object y están organizados por feature en `src/tests/`:
 
-**Total: 45 tests**
+- `test_<feature>.py` — un archivo por funcionalidad (login, inventory, cart, checkout, etc.)
+- Cada archivo contiene tests parametrizados para cubrir los diferentes casos
+- Los tests nuevos se agregan en el archivo correspondiente sin necesidad de registrar nada
+
+```bash
+# Ver todos los tests disponibles (siempre actualizado)
+uv run pytest --collect-only --quiet
+```
 
 ## Credentials
 

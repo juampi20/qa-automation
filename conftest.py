@@ -1,4 +1,5 @@
 import os
+import re
 
 import allure
 import pytest
@@ -13,6 +14,8 @@ STANDARD_PASSWORD = "secret_sauce"
 def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
+    if report.when == "call":
+        item.rep_call = report
     if report.when == "call" and report.failed:
         page = item.funcargs.get("page") or (
             item.funcargs.get("auth_page")
@@ -34,6 +37,18 @@ def pytest_runtest_makereport(item, call):
                 pass
 
 
+def _save_trace(context, node):
+    """Guarda el trace de Playwright solo si el test falló."""
+    rep_call = getattr(node, "rep_call", None)
+    if rep_call and rep_call.failed:
+        trace_dir = "traces"
+        os.makedirs(trace_dir, exist_ok=True)
+        safe_name = re.sub(r"[^a-zA-Z0-9._-]", "_", node.name)
+        context.tracing.stop(path=os.path.join(trace_dir, f"{safe_name}.zip"))
+    else:
+        context.tracing.stop()  # descartar
+
+
 HEADLESS = os.environ.get("HEADLESS", "").lower() in ("1", "true", "yes")
 SLOW_MO = int(os.environ.get("SLOW_MO", "0"))
 
@@ -52,9 +67,11 @@ def browser(playwright):
 
 
 @pytest.fixture(scope="function")
-def context(browser):
+def context(browser, request):
     ctx = browser.new_context(viewport={"width": 1600, "height": 900})
+    ctx.tracing.start(screenshots=True, snapshots=True, sources=True)
     yield ctx
+    _save_trace(ctx, request.node)
     ctx.close()
 
 
@@ -66,9 +83,10 @@ def page(context):
 
 
 @pytest.fixture(scope="function")
-def auth_page(browser):
+def auth_page(browser, request):
     """Login nuevo por test. SauceDemo es in-memory SPA — no comparte sesión."""
     context = browser.new_context(viewport={"width": 1600, "height": 900})
+    context.tracing.start(screenshots=True, snapshots=True, sources=True)
     page = context.new_page()
     page.goto(BASE_URL)
     page.fill("#user-name", STANDARD_USER)
@@ -76,4 +94,5 @@ def auth_page(browser):
     page.click("#login-button")
     page.wait_for_url("**/inventory.html")
     yield page
+    _save_trace(context, request.node)
     context.close()
