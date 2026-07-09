@@ -18,52 +18,32 @@ def setup_cart(auth_page):
 class TestCheckout:
     # ── Paso 1: Información del comprador ──────────────────
 
-    def test_step_one_continue_with_valid_data(self, auth_page):
+    @pytest.mark.parametrize(
+        ("first_name", "last_name", "postal_code", "expect_error", "case_id"),
+        [
+            pytest.param("Jane", "Doe", "1000", False, "valid_data", id="valid_data"),
+            pytest.param("", "Doe", "1000", True, "empty_first_name", id="empty_first_name"),
+            pytest.param("Jane", "", "1000", True, "empty_last_name", id="empty_last_name"),
+            pytest.param("Jane", "Doe", "", True, "empty_postal_code", id="empty_postal_code"),
+            pytest.param(None, None, None, True, "all_empty", id="all_empty"),
+        ],
+    )
+    def test_step_one_form_validation(
+        self, auth_page, first_name, last_name, postal_code, expect_error, case_id
+    ):
         CartPage(auth_page).checkout()
 
         step_one = CheckoutStepOnePage(auth_page)
-        assert step_one.is_loaded()
+        if first_name is not None:
+            step_one.fill_details(first_name, last_name, postal_code)
 
-        step_one.fill_details("Jane", "Doe", "1000")
         step_one.continue_checkout()
 
-        step_two = CheckoutStepTwoPage(auth_page)
-        assert step_two.is_loaded()
-
-    def test_step_one_empty_first_name(self, auth_page):
-        CartPage(auth_page).checkout()
-
-        step_one = CheckoutStepOnePage(auth_page)
-        step_one.fill_details("", "Doe", "1000")
-        step_one.continue_checkout()
-
-        assert step_one.is_error_displayed()
-
-    def test_step_one_empty_last_name(self, auth_page):
-        CartPage(auth_page).checkout()
-
-        step_one = CheckoutStepOnePage(auth_page)
-        step_one.fill_details("Jane", "", "1000")
-        step_one.continue_checkout()
-
-        assert step_one.is_error_displayed()
-
-    def test_step_one_empty_postal_code(self, auth_page):
-        CartPage(auth_page).checkout()
-
-        step_one = CheckoutStepOnePage(auth_page)
-        step_one.fill_details("Jane", "Doe", "")
-        step_one.continue_checkout()
-
-        assert step_one.is_error_displayed()
-
-    def test_step_one_all_empty_fields(self, auth_page):
-        CartPage(auth_page).checkout()
-
-        step_one = CheckoutStepOnePage(auth_page)
-        step_one.continue_checkout()
-
-        assert step_one.is_error_displayed()
+        if expect_error:
+            assert step_one.is_error_displayed()
+        else:
+            step_two = CheckoutStepTwoPage(auth_page)
+            assert step_two.is_loaded()
 
     def test_step_one_cancel_returns_to_cart(self, auth_page):
         CartPage(auth_page).checkout()
