@@ -1,3 +1,5 @@
+import pytest
+
 from pages.cart_page import CartPage
 from pages.inventory_page import InventoryPage
 
@@ -36,30 +38,35 @@ class TestSidebar:
 
         assert inventory_page.is_loaded()
 
-    def test_sidebar_about_navigates_to_saucelabs(self, auth_page):
+    @pytest.mark.parametrize(
+        "link_type",
+        [
+            pytest.param("about", id="about"),
+            pytest.param("logout", id="logout"),
+            pytest.param("reset", id="reset_app_state"),
+        ],
+    )
+    def test_sidebar_link_navigation(self, auth_page, link_type):
         inventory_page = InventoryPage(auth_page)
-        inventory_page.open_menu()
-        inventory_page.click_sidebar_about()
 
-        inventory_page.page.wait_for_url("**/saucelabs.com/**", timeout=15000)
-        assert "saucelabs" in inventory_page.page.url
+        if link_type == "about":
+            inventory_page.open_menu()
+            inventory_page.click_sidebar_about()
+            inventory_page.page.wait_for_url("**/saucelabs.com/**", timeout=15000)
+            assert "saucelabs" in inventory_page.page.url
 
-    def test_sidebar_logout_returns_to_login(self, auth_page):
-        InventoryPage(auth_page).open_menu()
-        InventoryPage(auth_page).click_sidebar_logout()
+        elif link_type == "logout":
+            inventory_page.open_menu()
+            inventory_page.click_sidebar_logout()
+            auth_page.wait_for_url("https://www.saucedemo.com/", timeout=5000)
+            assert auth_page.url.rstrip("/") == "https://www.saucedemo.com"
+            assert auth_page.locator("#user-name").is_visible()
 
-        auth_page.wait_for_url("https://www.saucedemo.com/", timeout=5000)
-        assert auth_page.url.rstrip("/") == "https://www.saucedemo.com"
-        assert auth_page.locator("#user-name").is_visible()
-
-    def test_sidebar_reset_app_state_clears_cart(self, auth_page):
-        inventory_page = InventoryPage(auth_page)
-        inventory_page.add_first_item_to_cart()
-        inventory_page.add_second_item_to_cart()
-        assert inventory_page.get_cart_item_count() == 2
-
-        inventory_page.open_menu()
-        inventory_page.click_sidebar_reset()
-        inventory_page.close_menu()
-
-        assert inventory_page.get_cart_item_count() == 0
+        elif link_type == "reset":
+            inventory_page.add_first_item_to_cart()
+            inventory_page.add_second_item_to_cart()
+            assert inventory_page.get_cart_item_count() == 2
+            inventory_page.open_menu()
+            inventory_page.click_sidebar_reset()
+            inventory_page.close_menu()
+            assert inventory_page.get_cart_item_count() == 0
