@@ -1,11 +1,38 @@
 import os
 
+import allure
 import pytest
 from playwright.sync_api import sync_playwright
 
 BASE_URL = "https://www.saucedemo.com"
 STANDARD_USER = "standard_user"
 STANDARD_PASSWORD = "secret_sauce"
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call" and report.failed:
+        page = item.funcargs.get("page") or (
+            item.funcargs.get("auth_page")
+            if isinstance(item.funcargs.get("auth_page"), tuple)
+            else item.funcargs.get("auth_page")
+        )
+        # auth_page returns (page, inventory_page) tuple or page directly
+        if isinstance(page, tuple):
+            page = page[0]
+        if page and not page.is_closed():
+            try:
+                screenshot = page.screenshot(type="png")
+                allure.attach(
+                    screenshot,
+                    name=f"screenshot_{report.nodeid}",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except Exception:
+                pass
+
 
 HEADLESS = os.environ.get("HEADLESS", "").lower() in ("1", "true", "yes")
 SLOW_MO = int(os.environ.get("SLOW_MO", "0"))
