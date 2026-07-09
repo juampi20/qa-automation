@@ -1,3 +1,5 @@
+import pytest
+
 from pages.inventory_page import InventoryPage
 from pages.item_details_page import ItemDetailsPage
 
@@ -31,31 +33,28 @@ class TestInventory:
         inventory_page.remove_second_item()
         assert inventory_page.get_cart_item_count() == 0
 
-    def test_sort_by_name_z_to_a(self, auth_page):
+    @pytest.mark.parametrize(
+        ("sort_value", "assert_type"),
+        [
+            pytest.param("za", "name", id="name_z_to_a"),
+            pytest.param("lohi", "price", id="price_low_to_high"),
+            pytest.param("hilo", "price", id="price_high_to_low"),
+        ],
+    )
+    def test_sort_inventory(self, auth_page, sort_value, assert_type):
         inventory_page = InventoryPage(auth_page)
-        names_before = inventory_page.get_item_names()
-
-        inventory_page.sort_by("za")
-        names_after = inventory_page.get_item_names()
-
-        assert names_after == sorted(names_before, reverse=True)
-        assert names_after != names_before
-
-    def test_sort_by_price_low_to_high(self, auth_page):
-        inventory_page = InventoryPage(auth_page)
-        inventory_page.sort_by("lohi")
-
-        prices = inventory_page.get_texts(inventory_page.ITEM_PRICE)
-        numeric_prices = [float(p.replace("$", "")) for p in prices]
-        assert numeric_prices == sorted(numeric_prices)
-
-    def test_sort_by_price_high_to_low(self, auth_page):
-        inventory_page = InventoryPage(auth_page)
-        inventory_page.sort_by("hilo")
-
-        prices = inventory_page.get_texts(inventory_page.ITEM_PRICE)
-        numeric_prices = [float(p.replace("$", "")) for p in prices]
-        assert numeric_prices == sorted(numeric_prices, reverse=True)
+        if assert_type == "name":
+            names_before = inventory_page.get_item_names()
+            inventory_page.sort_by(sort_value)
+            names_after = inventory_page.get_item_names()
+            is_reverse = sort_value == "za"
+            assert names_after == sorted(names_before, reverse=is_reverse)
+        else:
+            inventory_page.sort_by(sort_value)
+            prices = inventory_page.get_texts(inventory_page.ITEM_PRICE)
+            numeric_prices = [float(p.replace("$", "")) for p in prices]
+            is_hilo = sort_value == "hilo"
+            assert numeric_prices == sorted(numeric_prices, reverse=is_hilo)
 
     def test_click_item_navigates_to_details(self, auth_page):
         inventory_page = InventoryPage(auth_page)
