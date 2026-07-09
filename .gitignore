@@ -56,3 +56,5 @@ allure-report/
 node_modules/
 *.spec.js
 
+# Local AI runtime state
+.atl/

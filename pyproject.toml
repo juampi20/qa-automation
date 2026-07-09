@@ -1,10 +1,16 @@
 [project]
 name = "qa-automation"
 version = "0.1.0"
-description = "Add your description here"
+description = "SauceDemo Playwright test automation with pytest"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "allure-pytest>=2.15.3",
     "pytest-playwright>=0.7.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+markers = [
+    "smoke: quick smoke tests for critical paths",
 ]

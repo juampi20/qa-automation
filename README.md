@@ -1,109 +1,56 @@
-# QA Automation - Sauce Demo
+# QA Automation — SauceDemo
 
-Framework de automatización de pruebas usando **Playwright** y **pytest** para la aplicación [SauceDemo](https://www.saucedemo.com).
+Playwright + pytest test suite for [SauceDemo](https://www.saucedemo.com).
 
-## Características
-
-- 🎭 **Playwright** - Automatización de navegador multi-navegador
-- 🧪 **pytest** - Framework de testing
-- 📊 **Allure** - Reportes de pruebas
-- 📄 **Page Object Model** - Patrón de diseño escalable
-- 🐍 **Python 3.12+** - Última versión de Python
-
-## Requisitos
-
-- [Python](https://www.python.org/) 3.12+
-- [uv](https://docs.astral.sh/uv/) - Package manager
-
-## Instalación
+## Setup
 
 ```bash
-# Clonar el repositorio
-git clone <repo-url>
-cd qa-automation
-
-# Instalar dependencias
 uv sync
+uv run playwright install chromium
 ```
 
-## Estructura del Proyecto
+## Run
 
-```
-qa-automation/
-├── src/
-│   ├── pages/           # Page Object Model
-│   │   ├── base_page.py
-│   │   ├── ...
-│   └── tests/           # Test cases
-│       ├── test_login.py
-│       └── ...
-├── conftest.py          # Configuración de pytest
-├── pyproject.toml       # Dependencias del proyecto
-└── README.md
-```
-
-## Ejecución de Pruebas
-
-### Ejecutar todos los tests
 ```bash
+# Full suite
 uv run pytest
+
+# Headless (CI default)
+HEADLESS=true uv run pytest
+
+# Slow motion (debug)
+uv run pytest --headed --slowmo=1000
+
+# Single file
+uv run pytest src/tests/test_login.py -v
 ```
 
-### Ejecutar un archivo específico
-```bash
-uv run pytest ./src/tests/test_login.py -v
-```
+## Test areas
 
-### Ejecutar un test específico
-```bash
-uv run pytest ./src/tests/test_login.py -k "test_login_valid" -v
-```
+| File | Tests | Scope |
+|------|-------|-------|
+| `test_login.py` | 3 | Login valid/invalid/empty |
+| `test_inventory.py` | 9 | Items, sorting, cart badge |
+| `test_cart.py` | 9 | Add/remove, display, edge cases |
+| `test_checkout.py` | 11 | Form validation, summary, totals, full flow |
+| `test_item_details.py` | 6 | Detail view, add/remove, navigation |
+| `test_sidebar.py` | 7 | Menu open/close, links, logout, reset |
 
-### Ejecutar con ralentización (slowmo)
-```bash
-uv run pytest -v --headed --slowmo=1500
-```
+**Total: 45 tests**
 
-## Tests Disponibles
+## Credentials
 
-### Login Tests
-- `test_login_valid` - Login exitoso con credenciales válidas
-- `test_login_invalid_credentials` - Login fallido con credenciales inválidas
-- `test_login_empty_fields` - Validación de campos vacíos
+| User | Password | Notes |
+|------|----------|-------|
+| `standard_user` | `secret_sauce` | Normal flow |
+| `locked_out_user` | `secret_sauce` | Login blocked |
+| `problem_user` | `secret_sauce` | Images broken |
+| `performance_glitch_user` | `secret_sauce` | Slow responses |
 
-### Inventory Tests
-- `test_add_one_item_to_cart` - Agregar un item al carrito
-- `test_add_second_item_to_cart` - Agregar segundo item al carrito
+## Config
 
-## Credenciales de Prueba
-
-| Usuario | Password | Estado |
-|---------|----------|--------|
-| standard_user | secret_sauce | ✅ Válido |
-| locked_out_user | secret_sauce | 🔒 Bloqueado |
-| problem_user | secret_sauce | ⚠️ Problemas |
-| performance_glitch_user | secret_sauce | 🐢 Lento |
-
-## Configuración
-
-- **Timeout default**: 10.000ms
-- **Viewport**: 1600x900
-- **Navegador**: Chromium
-- **Scope fixtures**: Function (test aislado)
-
-## Contribuir
-
-1. Fork el proyecto
-2. Crea una rama (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## Licencia
-
-Este proyecto es de código abierto bajo licencia MIT.
-
----
-
-**Última actualización**: Abril 2026
-**Desarrollado con ❤️ usando Playwright y pytest**
+- Viewport: 1600×900
+- Timeout: 10s default
+- Browser: Chromium (session-scoped)
+- Auth: fresh login per test (SauceDemo is an in-memory SPA)
+- Env: `HEADLESS=true`, `SLOW_MO=<ms>`
