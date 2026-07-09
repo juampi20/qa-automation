@@ -2,7 +2,6 @@ from .base_page import BasePage
 
 
 class CartPage(BasePage):
-
     CHECKOUT_BUTTON = "#checkout"
     CONTINUE_SHOPPING_BUTTON = "#continue-shopping"
     CART_ITEM = ".cart_item"

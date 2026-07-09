@@ -2,7 +2,6 @@ from .base_page import BasePage
 
 
 class CheckoutStepTwoPage(BasePage):
-
     FINISH_BUTTON = "#finish"
     CANCEL_BUTTON = "#cancel"
     CART_ITEM = ".cart_item"

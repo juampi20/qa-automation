@@ -1,10 +1,9 @@
-from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
+from pages.inventory_page import InventoryPage
 
 
 class TestSidebar:
-
-    LINKS = {"All Items", "About", "Logout", "Reset App State"}
+    LINKS = frozenset(["All Items", "About", "Logout", "Reset App State"])
 
     def test_sidebar_closed_by_default(self, auth_page):
         assert not InventoryPage(auth_page).is_menu_open()

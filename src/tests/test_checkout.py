@@ -1,9 +1,10 @@
 import pytest
-from pages.inventory_page import InventoryPage
+
 from pages.cart_page import CartPage
+from pages.checkout_complete_page import CheckoutCompletePage
 from pages.checkout_step_one_page import CheckoutStepOnePage
 from pages.checkout_step_two_page import CheckoutStepTwoPage
-from pages.checkout_complete_page import CheckoutCompletePage
+from pages.inventory_page import InventoryPage
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +16,6 @@ def setup_cart(auth_page):
 
 
 class TestCheckout:
-
     # ── Paso 1: Información del comprador ──────────────────
 
     def test_step_one_continue_with_valid_data(self, auth_page):

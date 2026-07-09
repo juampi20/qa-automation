@@ -1,9 +1,8 @@
-from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
+from pages.login_page import LoginPage
 
 
 class TestLogin:
-
     def test_login_valid(self, page):
         login_page, inventory_page = LoginPage(page), InventoryPage(page)
         login_page.navigate()

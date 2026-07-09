@@ -2,7 +2,6 @@ from .base_page import BasePage
 
 
 class InventoryPage(BasePage):
-
     CART_LINK = ".shopping_cart_link"
     CART_COUNTER = ".shopping_cart_badge"
     INVENTORY_ITEM = ".inventory_item"

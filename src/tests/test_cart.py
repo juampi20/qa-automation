@@ -1,9 +1,8 @@
-from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
+from pages.inventory_page import InventoryPage
 
 
 class TestCart:
-
     def test_add_one_item_to_cart(self, auth_page):
         inventory_page = InventoryPage(auth_page)
         inventory_page.add_first_item_to_cart()
@@ -82,6 +81,4 @@ class TestCart:
         inventory_page.add_first_item_to_cart()
         assert inventory_page.get_cart_item_count() == 1
 
-        assert inventory_page.is_remove_button_visible(
-            inventory_page.get_item_names()[0]
-        )
+        assert inventory_page.is_remove_button_visible(inventory_page.get_item_names()[0])
