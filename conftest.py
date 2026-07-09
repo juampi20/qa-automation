@@ -19,11 +19,6 @@ def playwright():
 
 @pytest.fixture(scope="session")
 def browser(playwright):
-    """Navegador Chromium — UNO solo para toda la sesión.
-
-    Cada test crea su propio context + page, pero el navegador
-    arranca UNA vez. Ahorra ~1s por test comparado con function-scope.
-    """
     browser = playwright.chromium.launch(headless=HEADLESS, slow_mo=SLOW_MO)
     yield browser
     browser.close()
@@ -31,7 +26,6 @@ def browser(playwright):
 
 @pytest.fixture(scope="function")
 def context(browser):
-    """Contexto limpio para tests de login (sin autenticar)."""
     ctx = browser.new_context(viewport={"width": 1600, "height": 900})
     yield ctx
     ctx.close()
@@ -39,7 +33,6 @@ def context(browser):
 
 @pytest.fixture(scope="function")
 def page(context):
-    """Página sin autenticar. Para tests de login."""
     p = context.new_page()
     yield p
     p.close()
@@ -47,12 +40,7 @@ def page(context):
 
 @pytest.fixture(scope="function")
 def auth_page(browser):
-    """Página autenticada — login fresco por test.
-
-    SauceDemo es una SPA client-side sin persistencia de sesión.
-    No hay forma de compartir auth entre pages o contexts.
-    La optimización real: browser session-scoped (launch una vez).
-    """
+    """Login nuevo por test. SauceDemo es in-memory SPA — no comparte sesión."""
     context = browser.new_context(viewport={"width": 1600, "height": 900})
     page = context.new_page()
     page.goto(BASE_URL)
