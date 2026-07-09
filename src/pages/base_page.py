@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, Locator, expect
+from playwright.sync_api import Locator, Page, expect
 
 
 class BasePage:
@@ -74,6 +74,7 @@ class BasePage:
     # ── Capturas ────────────────────────────────────────────
 
     def take_screenshot(self, name: str = "screenshot") -> bytes:
+        _ = name  # Avoid unused parameter warning
         return self.page.screenshot(type="png")
 
     # ── Aserciones ──────────────────────────────────────────

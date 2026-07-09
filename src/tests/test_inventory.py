@@ -3,7 +3,6 @@ from pages.item_details_page import ItemDetailsPage
 
 
 class TestInventory:
-
     def test_inventory_is_loaded(self, auth_page):
         inventory_page = InventoryPage(auth_page)
         assert inventory_page.is_loaded()

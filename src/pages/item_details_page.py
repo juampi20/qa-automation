@@ -2,7 +2,6 @@ from .base_page import BasePage
 
 
 class ItemDetailsPage(BasePage):
-
     ADD_TO_CART_BUTTON = "#add-to-cart"
     REMOVE_BUTTON = "#remove"
     BACK_TO_PRODUCTS_BUTTON = "#back-to-products"

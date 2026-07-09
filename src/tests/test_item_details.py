@@ -1,7 +1,8 @@
 import pytest
-from pages.item_details_page import ItemDetailsPage
-from pages.inventory_page import InventoryPage
+
 from pages.cart_page import CartPage
+from pages.inventory_page import InventoryPage
+from pages.item_details_page import ItemDetailsPage
 
 
 @pytest.fixture(autouse=True)
@@ -10,7 +11,6 @@ def navigate_to_details(auth_page):
 
 
 class TestItemDetails:
-
     def test_item_details_loaded(self, auth_page):
         details = ItemDetailsPage(auth_page)
         assert details.is_loaded()
