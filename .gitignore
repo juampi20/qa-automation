@@ -33,19 +33,23 @@ pwdebug.log
 *.swp
 *.swo
 *~
-.DS_Store
 .project
 .pydevproject
 *.iml
 
 # OS
-.DS_Store
 Thumbs.db
 *.tmp
 
 # Allure
 allure-results/
 allure-report/
+
+# Ruff (linter)
+.ruff_cache/
+
+# Playwright traces (solo en fallos)
+traces/
 
 # Environment variables
 .env
